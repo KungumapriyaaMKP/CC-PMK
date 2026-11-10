@@ -154,11 +154,12 @@ export default function Hero({ onOpenAudit }) {
           loop
           playsInline
           preload="auto"
-          className="w-full h-full object-cover object-[78%_center] sm:object-[76%_center] lg:object-[82%_center]"
+          className="w-full h-full object-cover object-[48%_center] sm:object-[52%_center] lg:object-[58%_center]"
         />
 
         {/* Light subtle scrim strictly behind text area for crisp readability without darkening the video */}
-        <div className="absolute inset-y-0 left-0 w-full md:w-1/2 bg-gradient-to-r from-black/45 via-black/25 to-transparent pointer-events-none" />
+        <div className="hidden sm:block absolute inset-y-0 left-0 w-full md:w-1/2 bg-gradient-to-r from-black/45 via-black/25 to-transparent pointer-events-none" />
+        <div className="sm:hidden absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 via-50% to-transparent pointer-events-none" />
       </div>
 
       {/* Floating Audio Control Pill */}
