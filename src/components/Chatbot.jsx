@@ -463,7 +463,7 @@ export default function Chatbot() {
             </div>
 
             {/* Conversation Log */}
-            <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-100/70">
+            <div data-lenis-prevent className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-100/70">
               {messages.map((msg) => (
                 <div
                   key={msg.id}

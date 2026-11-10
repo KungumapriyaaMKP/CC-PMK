@@ -15,7 +15,7 @@ export default function CaseStudyModal({ project, onClose }) {
 
   return (
     <div 
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200"
+      data-lenis-prevent className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200"
       onClick={onClose}
     >
       
@@ -45,7 +45,7 @@ export default function CaseStudyModal({ project, onClose }) {
         </div>
 
         {/* Scrollable Content */}
-        <div className="p-5 sm:p-8 space-y-6 overflow-y-auto">
+        <div data-lenis-prevent className="p-5 sm:p-8 space-y-6 overflow-y-auto">
           
           {/* Header Title & Role */}
           <div className="space-y-2 border-b border-slate-200 pb-5">
