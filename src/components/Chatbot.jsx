@@ -6,11 +6,13 @@ import {
   Send, 
   Sparkles, 
   ArrowUpRight, 
+  ArrowRight,
+  ExternalLink,
   Bot, 
   User, 
   PhoneCall, 
   CheckCircle2, 
-  RefreshCw
+  RefreshCw 
 } from 'lucide-react';
 import { AGENCY_INFO, METRICS, SERVICES, CASE_STUDIES, FAQS } from '../data/content';
 
@@ -71,6 +73,67 @@ const SUGGESTED_QUESTIONS = [
   "How does Poojaa's data background help my brand?",
   "How can I work with Poojaa?"
 ];
+
+
+// Parse bold text and bullet/number lists for high-contrast, bright editorial presentation
+function renderInlineText(str) {
+  const parts = str.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      const boldContent = part.slice(2, -2);
+      return (
+        <strong key={i} className="font-bold text-[#0F172A] bg-amber-200/50 px-1 py-0.5 border-b-2 border-amber-400">
+          {boldContent}
+        </strong>
+      );
+    }
+    return part;
+  });
+}
+
+function renderFormattedBotText(text) {
+  if (!text) return null;
+  const lines = text.split('\n');
+
+  return (
+    <div className="space-y-2 text-[13px] leading-relaxed font-sans text-slate-800">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+        if (!trimmed) return null;
+
+        if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+          const itemText = trimmed.substring(2);
+          return (
+            <div key={idx} className="flex items-start gap-2.5 pl-1 py-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0 shadow-xs" />
+              <div className="flex-1 text-slate-800 leading-relaxed font-medium">{renderInlineText(itemText)}</div>
+            </div>
+          );
+        }
+
+        const numMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
+        if (numMatch) {
+          const num = numMatch[1];
+          const itemText = numMatch[2];
+          return (
+            <div key={idx} className="flex items-start gap-2.5 pl-1 py-0.5">
+              <span className="inline-flex items-center justify-center w-5 h-5 bg-[#0F172A] text-white font-mono font-bold text-[10px] shrink-0 mt-0.5 shadow-2xs">
+                {num}
+              </span>
+              <div className="flex-1 text-slate-800 leading-relaxed font-medium">{renderInlineText(itemText)}</div>
+            </div>
+          );
+        }
+
+        return (
+          <p key={idx} className="leading-relaxed text-slate-800 font-medium">
+            {renderInlineText(trimmed)}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -284,12 +347,15 @@ export default function Chatbot() {
             </div>
 
             {/* Suggested Question Chips (Scrollable) */}
-            <div className="p-2 bg-slate-50 border-b border-slate-200 overflow-x-auto scrollbar-none flex items-center gap-2 shrink-0">
+            <div className="p-2.5 bg-white border-b border-slate-200 overflow-x-auto scrollbar-none flex items-center gap-2 shrink-0">
+              <span className="text-[10px] font-mono uppercase font-bold text-slate-600 tracking-wider shrink-0 pl-1">
+                Suggested:
+              </span>
               {SUGGESTED_QUESTIONS.map((q, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSend(q)}
-                  className="whitespace-nowrap px-2.5 py-1 text-[11px] font-medium bg-white hover:bg-slate-100 text-[#0F172A] border border-slate-200 hover:border-[#0F172A] transition-colors rounded-none shadow-2xs"
+                  className="whitespace-nowrap px-3 py-1.5 text-xs font-sans font-semibold bg-slate-50 hover:bg-[#0F172A] text-slate-800 hover:text-white border border-slate-300 hover:border-[#0F172A] transition-all shadow-2xs cursor-pointer"
                 >
                   {q}
                 </button>
@@ -297,68 +363,86 @@ export default function Chatbot() {
             </div>
 
             {/* Conversation Log */}
-            <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-50/40">
+            <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-100/70">
               {messages.map((msg) => (
                 <div
                   key={msg.id}
                   className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
                 >
-                  <div
-                    className={`max-w-[85%] p-3 text-xs leading-relaxed rounded-none shadow-2xs ${
-                      msg.sender === 'user'
-                        ? 'bg-[#0F172A] text-white text-right'
-                        : 'bg-white border border-slate-200 text-slate-800 text-left'
-                    }`}
-                  >
-                    <div className="whitespace-pre-line font-sans">
-                      {msg.text}
-                    </div>
-
-                    {/* Quick action buttons attached to bot message */}
-                    {msg.quickLinks && msg.quickLinks.length > 0 && (
-                      <div className="mt-3 pt-2.5 border-t border-slate-100 flex flex-wrap gap-1.5">
-                        {msg.quickLinks.map((link, i) => (
-                          link.question ? (
-                            <button
-                              key={i}
-                              onClick={() => handleSend(link.question)}
-                              className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 hover:bg-[#0F172A] hover:text-white text-[10.5px] font-mono font-bold text-slate-700 transition-colors border border-slate-200"
-                            >
-                              <span>{link.label}</span>
-                            </button>
-                          ) : link.anchor ? (
-                            <button
-                              key={i}
-                              onClick={() => handleNavigate(link.anchor)}
-                              className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 hover:bg-[#0F172A] hover:text-white text-[10.5px] font-mono font-bold text-slate-700 transition-colors border border-slate-200"
-                            >
-                              <span>{link.label}</span>
-                              <ArrowUpRight className="w-3 h-3" />
-                            </button>
-                          ) : (
-                            <a
-                              key={i}
-                              href={link.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-50 hover:bg-emerald-600 hover:text-white text-[10.5px] font-mono font-bold text-emerald-800 transition-colors border border-emerald-200"
-                            >
-                              <span>{link.label}</span>
-                              <ArrowUpRight className="w-3 h-3" />
-                            </a>
-                          )
-                        ))}
+                  {msg.sender === 'user' ? (
+                    <div className="max-w-[85%] bg-[#0F172A] text-white p-3.5 shadow-sm text-right space-y-1">
+                      <div className="text-[10px] font-mono uppercase tracking-wider text-slate-300 font-bold">
+                        You
                       </div>
-                    )}
-                  </div>
-                  <span className="text-[9.5px] font-mono text-slate-400 mt-1 px-1">
-                    {msg.sender === 'user' ? 'You' : 'Assistant'}
-                  </span>
+                      <div className="text-[13px] font-sans font-medium leading-relaxed text-white">
+                        {msg.text}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="max-w-[92%] sm:max-w-[88%] bg-white border border-slate-300 shadow-sm p-4 text-left space-y-3">
+                      {/* Bot Header Ribbon */}
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <div className="flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
+                          <span className="font-sans font-bold text-xs uppercase tracking-wider text-[#0F172A]">
+                            Career Compass AI
+                          </span>
+                        </div>
+                        <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 border border-emerald-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                          ONLINE
+                        </span>
+                      </div>
+
+                      {/* Formatted Text Content */}
+                      <div>
+                        {renderFormattedBotText(msg.text)}
+                      </div>
+
+                      {/* Quick action buttons attached to bot message */}
+                      {msg.quickLinks && msg.quickLinks.length > 0 && (
+                        <div className="pt-2.5 border-t border-slate-100 flex flex-wrap gap-2">
+                          {msg.quickLinks.map((link, i) => (
+                            link.question ? (
+                              <button
+                                key={i}
+                                onClick={() => handleSend(link.question)}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0F172A] hover:bg-black text-white text-xs font-sans font-bold transition-all shadow-xs hover:shadow-sm cursor-pointer"
+                              >
+                                <span>{link.label}</span>
+                                <ArrowRight className="w-3 h-3 text-emerald-400" />
+                              </button>
+                            ) : link.anchor ? (
+                              <button
+                                key={i}
+                                onClick={() => handleNavigate(link.anchor)}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-900 text-slate-900 hover:text-white border-2 border-slate-900 text-xs font-sans font-bold transition-all shadow-xs cursor-pointer"
+                              >
+                                <span>{link.label}</span>
+                                <ArrowUpRight className="w-3.5 h-3.5" />
+                              </button>
+                            ) : (
+                              <a
+                                key={i}
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-sans font-bold transition-all shadow-xs hover:shadow-sm"
+                              >
+                                <span>{link.label}</span>
+                                <ExternalLink className="w-3.5 h-3.5" />
+                              </a>
+                            )
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
 
               {isTyping && (
-                <div className="flex items-center gap-1.5 p-3 max-w-[100px] bg-white border border-slate-200 text-slate-400 text-xs">
+                <div className="flex items-center gap-1.5 p-3 max-w-[100px] bg-white border border-slate-300 text-slate-400 text-xs shadow-2xs">
                   <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '0ms' }} />
                   <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '150ms' }} />
                   <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '300ms' }} />
