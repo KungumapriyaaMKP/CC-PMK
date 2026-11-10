@@ -135,6 +135,152 @@ function renderFormattedBotText(text) {
   );
 }
 
+
+// Robust intent detection for gibberish, casual banter, greetings, pricing, and domain queries
+function detectIntent(rawQuery) {
+  const query = rawQuery.trim();
+  const lower = query.toLowerCase();
+
+  // 1. Single character or pure punctuation
+  if (query.length <= 1 || /^[^a-zA-Z0-9]+$/.test(query)) {
+    return {
+      type: 'help',
+      response: "How can I help you today? You can ask about **Poojaa Muthukumar's background**, our **5 core growth services**, **how we engineered 11M reel views**, or our **Chennai & Dubai on-location shoot companion**.",
+      quickLinks: [
+        { label: "What Services Do You Offer?", question: "What services do you offer?" },
+        { label: "How Did You Hit 11M Views?", question: "How did you hit 11M views?" },
+        { label: "View Client Work", anchor: "#case-studies" }
+      ]
+    };
+  }
+
+  const cleanChars = lower.replace(/[^a-z]/g, '');
+  const vowels = (cleanChars.match(/[aeiouy]/g) || []).length;
+  const uniqueChars = new Set(cleanChars).size;
+
+  // 2. Laughs / Fun reactions (e.g. haha, lol, hehe)
+  if (/^(ha|he|lol|lmao|rofl|xd)+$/i.test(cleanChars)) {
+    return {
+      type: 'humor',
+      response: "Glad to bring good energy to your screen! Whenever you're ready, let me know what questions you have about growing your brand's social presence.",
+      quickLinks: [
+        { label: "Explore Services", anchor: "#services" },
+        { label: "How Did You Hit 11M Views?", question: "How did you hit 11M views?" }
+      ]
+    };
+  }
+
+  // 3. Gibberish / Keyboard Smash / Repeated letters (e.g. nnjjkjjjj, asdfghjk, aaaaa, zzzzz)
+  const isAllConsonants = cleanChars.length >= 4 && vowels === 0;
+  const hasExtremelyLowVowels = cleanChars.length >= 7 && (vowels / cleanChars.length) < 0.15;
+  const hasRepeatedSequence = /(.)\1{3,}/.test(lower); // 4+ repeated chars in a row
+  const hasLowEntropySmash = cleanChars.length >= 6 && uniqueChars <= 3; // e.g. nnjjkjjjj (3 unique chars in 9)
+
+  if (isAllConsonants || hasExtremelyLowVowels || hasRepeatedSequence || hasLowEntropySmash) {
+    return {
+      type: 'gibberish',
+      response: "I didn't quite catch that! It looks like some random characters or a typo was entered.\n\nHere are the most helpful topics you can explore right now:",
+      quickLinks: [
+        { label: "What Services Do You Offer?", question: "What services do you offer?" },
+        { label: "How Did You Hit 11M Views?", question: "How did you hit 11M views?" },
+        { label: "View Client Work", anchor: "#case-studies" },
+        { label: "Chat on WhatsApp Directly", url: `https://wa.me/${AGENCY_INFO.phoneRaw}?text=${encodeURIComponent("Hi Poojaa, I'd like to discuss social media strategy for my brand.")}`, external: true }
+      ]
+    };
+  }
+
+  // 4. Greetings (hi, hello, hey, good morning, etc.)
+  const greetings = ['hi', 'hello', 'hey', 'good morning', 'good evening', 'good afternoon', 'hola', 'namaste', 'vanakkam', 'yo', 'sup', 'whats up', "what's up"];
+  if (greetings.some(g => lower === g || lower.startsWith(g + ' ') || lower.endsWith(' ' + g))) {
+    return {
+      type: 'greeting',
+      response: "Hello! Welcome to **Career Compass**. I'm Poojaa's AI assistant.\n\nAre you looking to scale your brand's social presence, produce viral vertical reels, or learn how we combine **creative storytelling with data analytics**?",
+      quickLinks: [
+        { label: "Explore Services", anchor: "#services" },
+        { label: "How 11M Views Was Hit", question: "How did you hit 11M views?" },
+        { label: "Request A Project Audit", anchor: "#growth-calculator" }
+      ]
+    };
+  }
+
+  // 5. Gratitude / Acknowledgment (thanks, cool, awesome, ok)
+  const thanks = ['thank you', 'thanks', 'thx', 'thank u', 'appreciate it', 'awesome', 'great', 'cool', 'perfect', 'nice', 'ok', 'okay', 'got it', 'sure', 'alright'];
+  if (thanks.some(t => lower === t || lower.startsWith(t + ' ') || lower.endsWith(' ' + t))) {
+    return {
+      type: 'thanks',
+      response: "You're very welcome! If there's anything else you'd like to explore about our workflow, deliverables, or scheduling an on-location shoot companion in Chennai or Dubai, feel free to ask anytime.",
+      quickLinks: [
+        { label: "View Our Work Process", anchor: "#process" },
+        { label: "Talk With Poojaa on WhatsApp", url: `https://wa.me/${AGENCY_INFO.phoneRaw}?text=${encodeURIComponent("Hi Poojaa, I'd like to schedule a 1-on-1 strategy call.")}`, external: true }
+      ]
+    };
+  }
+
+  // 6. Pricing / Cost / Budget / Packages
+  const pricingKeywords = ['price', 'pricing', 'cost', 'how much', 'budget', 'rate', 'rates', 'fee', 'fees', 'quote', 'package', 'packages', 'charge'];
+  if (pricingKeywords.some(kw => lower.includes(kw))) {
+    return {
+      type: 'pricing',
+      response: "Career Compass offers customized partnership scopes based on your brand's growth phase:\n\n- **Full Social Media Management**: End-to-end strategy, scripting, filming direction, kinetic editing & community growth.\n- **On-Location Shoot Companion**: Chennai & Dubai on-set directing & teleprompter-free coaching.\n- **Strategic Account Audit**: Comprehensive diagnostic of hooks, viewer retention curves & conversion bottlenecks.\n\nBecause deliverables are customized to your specific industry and goals, Poojaa provides a tailored scope after a brief diagnostic.",
+      quickLinks: [
+        { label: "Calculate Growth Scope", anchor: "#growth-calculator" },
+        { label: "Get Custom Quote on WhatsApp", url: `https://wa.me/${AGENCY_INFO.phoneRaw}?text=${encodeURIComponent("Hi Poojaa, I would like to get a pricing quote for social media management.")}`, external: true }
+      ]
+    };
+  }
+
+  // 7. Location / Base / Office / Cities
+  const locationKeywords = ['location', 'where are you', 'city', 'office', 'chennai', 'dubai', 'base', 'address', 'travel'];
+  if (locationKeywords.some(kw => lower.includes(kw))) {
+    return {
+      type: 'location',
+      response: "Career Compass is headquartered in **Chennai, India**, with active on-location production companion services in **Dubai, UAE** and select travel destinations.\n\nWe partner with founders and enterprise brands across India, the Middle East, and globally via structured remote content pipelines.",
+      quickLinks: [
+        { label: "Book Shoot Companion", url: `https://wa.me/${AGENCY_INFO.phoneRaw}?text=${encodeURIComponent("Hi Poojaa, I want to inquire about shoot companion in Chennai/Dubai.")}`, external: true },
+        { label: "Jump to Contact Form", anchor: "#contact" }
+      ]
+    };
+  }
+
+  // 8. Knowledge Base matching
+  let match = KNOWLEDGE_BASE.find(item => 
+    item.keywords.some(kw => lower.includes(kw))
+  );
+
+  if (match) {
+    return {
+      type: 'knowledge',
+      response: match.response,
+      quickLinks: match.quickLinks
+    };
+  }
+
+  // 9. FAQ matching
+  const foundFaq = FAQS.find(f => 
+    f.q.toLowerCase().split(' ').some(word => word.length > 3 && lower.includes(word))
+  );
+  if (foundFaq) {
+    return {
+      type: 'faq',
+      response: `**${foundFaq.q}**\n\n${foundFaq.a}`,
+      quickLinks: [
+        { label: "Chat With Poojaa on WhatsApp", url: `https://wa.me/${AGENCY_INFO.phoneRaw}?text=${encodeURIComponent(`Hi Poojaa, I have a question regarding: "${foundFaq.q}"`)}`, external: true }
+      ]
+    };
+  }
+
+  // 10. Graceful Fallback (clean WhatsApp message without raw query)
+  return {
+    type: 'fallback',
+    response: "Thank you for asking! For custom strategy inquiries or specific requirements, Poojaa is directly available for a 1-on-1 diagnostic discussion.\n\nWould you like to connect directly on WhatsApp or review our verified client work?",
+    quickLinks: [
+      { label: "Chat With Poojaa Directly", url: `https://wa.me/${AGENCY_INFO.phoneRaw}?text=${encodeURIComponent("Hi Poojaa, I have a specific question about growing my brand.")}`, external: true },
+      { label: "Explore Client Work", anchor: "#case-studies" },
+      { label: "Calculate Growth Scope", anchor: "#growth-calculator" }
+    ]
+  };
+}
+
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [hasOpenedBefore, setHasOpenedBefore] = useState(false);
@@ -442,10 +588,14 @@ export default function Chatbot() {
               ))}
 
               {isTyping && (
-                <div className="flex items-center gap-1.5 p-3 max-w-[100px] bg-white border border-slate-300 text-slate-400 text-xs shadow-2xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="flex items-center gap-2 p-3 max-w-[140px] bg-white border border-slate-300 shadow-xs">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-spin" style={{ animationDuration: '3s' }} />
+                  <span className="text-xs font-sans text-slate-600 font-medium">Thinking...</span>
+                  <div className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
                 </div>
               )}
 
