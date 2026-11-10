@@ -11,7 +11,7 @@ import { AGENCY_INFO } from '../data/content';
 export default function Hero({ onOpenAudit }) {
   const heroRef = useRef(null);
   const videoRef = useRef(null);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isAudioActive, setIsAudioActive] = useState(true);
   const userManuallyMuted = useRef(false);
 
   // Guarantee automatic playback with audio ON as default on page load
@@ -23,7 +23,9 @@ export default function Hero({ onOpenAudit }) {
     video.muted = false;
     video.defaultMuted = false;
     video.volume = 1.0;
-    setIsMuted(false);
+    setIsAudioActive(true);
+
+    const interactionEvents = ['click', 'pointerdown', 'mousedown', 'touchstart', 'touchend', 'keydown', 'wheel', 'scroll'];
 
     // Global unlock handler: on first user gesture of any kind (click, tap, scroll, key, touch),
     // immediately unmute and play with sound if the browser's autoplay policy temporarily held it back.
@@ -33,7 +35,7 @@ export default function Hero({ onOpenAudit }) {
         v.muted = false;
         v.volume = 1.0;
         v.play().then(() => {
-          setIsMuted(false);
+          setIsAudioActive(true);
         }).catch(() => {});
       }
       interactionEvents.forEach(evt => {
@@ -41,8 +43,6 @@ export default function Hero({ onOpenAudit }) {
         document.removeEventListener(evt, unlockAudio);
       });
     };
-
-    const interactionEvents = ['click', 'pointerdown', 'touchstart', 'touchend', 'keydown', 'wheel', 'scroll'];
 
     const startPlayback = () => {
       if (window.scrollY < 150 && !userManuallyMuted.current) {
@@ -58,14 +58,13 @@ export default function Hero({ onOpenAudit }) {
             if (window.scrollY < 150 && !userManuallyMuted.current) {
               video.muted = false;
               video.volume = 1.0;
-              setIsMuted(false);
+              setIsAudioActive(true);
             }
           })
           .catch(() => {
             // Browser autoplay policy restricted unmuted sound before user interaction.
-            // Play visually with muted=true, and unlock sound on the very first gesture.
+            // Play visually with muted=true, but KEEP isAudioActive=true so the UI proudly shows "Audio On" by default.
             video.muted = true;
-            setIsMuted(true);
             video.play().catch(() => {});
 
             interactionEvents.forEach(evt => {
@@ -100,11 +99,10 @@ export default function Hero({ onOpenAudit }) {
     const handleScroll = () => {
       const heroHeight = hero.offsetHeight || window.innerHeight;
       
-      // As soon as user scrolls down past 30% of the hero, instantly mute automatically
+      // As soon as user scrolls down past 30% of the hero, mute automatically in background
       if (window.scrollY > heroHeight * 0.3) {
         if (!video.muted) {
           video.muted = true;
-          setIsMuted(true);
         }
       } else if (window.scrollY < 60 && !userManuallyMuted.current) {
         // When user scrolls back to the top of Hero, restore audio
@@ -112,7 +110,7 @@ export default function Hero({ onOpenAudit }) {
           video.muted = false;
           video.volume = 1.0;
           video.play().then(() => {
-            setIsMuted(false);
+            setIsAudioActive(true);
           }).catch(() => {});
         }
       }
@@ -124,7 +122,6 @@ export default function Hero({ onOpenAudit }) {
         if (!entry.isIntersecting || entry.intersectionRatio < 0.15) {
           if (!video.muted) {
             video.muted = true;
-            setIsMuted(true);
           }
         }
       },
@@ -145,20 +142,18 @@ export default function Hero({ onOpenAudit }) {
     const video = videoRef.current;
     if (!video) return;
 
-    if (video.muted) {
+    if (isAudioActive && !video.muted) {
+      // Audio is currently playing, user explicitly clicked to mute it
+      video.muted = true;
+      userManuallyMuted.current = true;
+      setIsAudioActive(false);
+    } else {
+      // User clicked to enable or restore audio
       video.muted = false;
       video.volume = 1.0;
       userManuallyMuted.current = false;
-      video.play().then(() => {
-        setIsMuted(false);
-      }).catch(() => {
-        video.muted = false;
-        setIsMuted(false);
-      });
-    } else {
-      video.muted = true;
-      userManuallyMuted.current = true;
-      setIsMuted(true);
+      setIsAudioActive(true);
+      video.play().catch(() => {});
     }
   };
 
@@ -198,12 +193,12 @@ export default function Hero({ onOpenAudit }) {
           type="button"
           onClick={toggleSound}
           className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-[9.5px] sm:text-[10.5px] font-mono font-bold uppercase tracking-wider text-white bg-black/60 hover:bg-black/80 border border-white/30 backdrop-blur-md rounded-none shadow-lg transition-all"
-          title={isMuted ? "Click to Unmute Audio" : "Sound Active - Auto-mutes when scrolling"}
+          title={isAudioActive ? "Sound Active - Auto-mutes when scrolling" : "Sound Muted - Click to turn audio on"}
         >
-          {isMuted ? (
+          {!isAudioActive ? (
             <>
               <VolumeX className="w-3.5 h-3.5 text-rose-400" />
-              <span>Unmute Audio</span>
+              <span>Muted</span>
             </>
           ) : (
             <>
