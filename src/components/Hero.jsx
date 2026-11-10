@@ -1,0 +1,271 @@
+import React, { useRef, useEffect, useState } from 'react';
+import { 
+  ArrowUpRight, 
+  ArrowRight, 
+  ArrowDown,
+  Volume2,
+  VolumeX
+} from 'lucide-react';
+import { AGENCY_INFO } from '../data/content';
+
+export default function Hero({ onOpenAudit }) {
+  const heroRef = useRef(null);
+  const videoRef = useRef(null);
+  const [isMuted, setIsMuted] = useState(false);
+  const userManuallyMuted = useRef(false);
+
+  // Guarantee automatic playback with audio ON on initial page load
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Default audio ON as requested
+    video.muted = false;
+    video.defaultMuted = false;
+    setIsMuted(false);
+
+    const startPlayback = () => {
+      // Only start with sound if user is near top of page and hasn't manually muted
+      if (window.scrollY < 120 && !userManuallyMuted.current) {
+        video.muted = false;
+      }
+      
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            if (window.scrollY < 120 && !userManuallyMuted.current) {
+              setIsMuted(false);
+            }
+          })
+          .catch(() => {
+            // If browser autoplay policy restricted unmuted audio before user interaction,
+            // play muted first so playback isn't blocked, then unmute on first gesture.
+            video.muted = true;
+            setIsMuted(true);
+            video.play().catch(() => {});
+
+            const enableAudioOnGesture = () => {
+              if (window.scrollY < 120 && !userManuallyMuted.current) {
+                video.muted = false;
+                setIsMuted(false);
+                video.play().catch(() => {});
+              }
+              ['click', 'touchstart', 'keydown', 'pointerdown'].forEach(evt => {
+                window.removeEventListener(evt, enableAudioOnGesture);
+              });
+            };
+
+            ['click', 'touchstart', 'keydown', 'pointerdown'].forEach(evt => {
+              window.addEventListener(evt, enableAudioOnGesture, { once: true, passive: true });
+            });
+          });
+      }
+    };
+
+    startPlayback();
+
+    video.addEventListener('loadeddata', startPlayback);
+    window.addEventListener('focus', startPlayback);
+
+    return () => {
+      video.removeEventListener('loadeddata', startPlayback);
+      window.removeEventListener('focus', startPlayback);
+    };
+  }, []);
+
+  // Automatically MUTE as soon as user scrolls past the Hero section
+  useEffect(() => {
+    const video = videoRef.current;
+    const hero = heroRef.current;
+    if (!video || !hero) return;
+
+    const handleScroll = () => {
+      const heroHeight = hero.offsetHeight || window.innerHeight;
+      
+      // As soon as user scrolls down past 25% of the hero, instantly mute automatically
+      if (window.scrollY > heroHeight * 0.25) {
+        if (!video.muted) {
+          video.muted = true;
+          setIsMuted(true);
+        }
+      } else if (window.scrollY < 50 && !userManuallyMuted.current) {
+        // When user scrolls back to the top of Hero, restore audio
+        if (video.muted) {
+          video.muted = false;
+          setIsMuted(false);
+        }
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // When hero leaves viewport, guarantee audio is muted
+        if (!entry.isIntersecting || entry.intersectionRatio < 0.2) {
+          video.muted = true;
+          setIsMuted(true);
+        } else if (window.scrollY < 50 && !userManuallyMuted.current) {
+          video.muted = false;
+          setIsMuted(false);
+        }
+      },
+      { threshold: [0, 0.2, 0.5, 0.8, 1.0] }
+    );
+
+    observer.observe(hero);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  const toggleSound = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    const nextMuted = !video.muted;
+    video.muted = nextMuted;
+    setIsMuted(nextMuted);
+    userManuallyMuted.current = nextMuted;
+    if (!nextMuted) {
+      video.play().catch(() => {});
+    }
+  };
+
+  const scrollToNext = () => {
+    const el = document.getElementById('about');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <section 
+      ref={heroRef}
+      className="relative w-full h-screen min-h-[640px] flex items-center overflow-hidden bg-black text-white"
+    >
+      {/* 1. Full Screen Background Video (Clean, Bright, Natural Lighting, Audio Enabled at Top, Auto-Mutes on Scroll) */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden">
+        <video
+          ref={videoRef}
+          src="/assets/showcase-video.mp4"
+          autoPlay
+          loop
+          playsInline
+          preload="auto"
+          className="w-full h-full object-cover object-[78%_center] sm:object-[76%_center] lg:object-[82%_center]"
+        />
+
+        {/* Light subtle scrim strictly behind text area for crisp readability without darkening the video */}
+        <div className="absolute inset-y-0 left-0 w-full md:w-1/2 bg-gradient-to-r from-black/40 to-transparent pointer-events-none" />
+      </div>
+
+      {/* Floating Audio Control Pill */}
+      <div className="absolute top-24 right-4 sm:right-8 z-30">
+        <button
+          type="button"
+          onClick={toggleSound}
+          className="inline-flex items-center gap-2 px-3.5 py-2 text-[10.5px] font-mono font-bold uppercase tracking-wider text-white bg-black/60 hover:bg-black/80 border border-white/30 backdrop-blur-md rounded-none shadow-lg transition-all"
+          title={isMuted ? "Click to Unmute Audio" : "Sound Active - Auto-mutes when scrolling"}
+        >
+          {isMuted ? (
+            <>
+              <VolumeX className="w-3.5 h-3.5 text-rose-400" />
+              <span>Unmute Audio</span>
+            </>
+          ) : (
+            <>
+              <Volume2 className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+              <span>Audio On</span>
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* 2. Front Landing Page Content Overlay (Brought Down to Lower-Left to Keep Face Fully Open) */}
+      <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-6 sm:pb-8 flex flex-col justify-end h-full">
+        
+        {/* Main Left-Aligned Headline & Actions (Positioned Lower-Left) */}
+        <div className="max-w-xl lg:max-w-2xl space-y-5 text-left pb-3">
+          <div className="space-y-2">
+            <h1 className="font-serif font-bold text-3xl sm:text-4xl md:text-5xl lg:text-[52px] text-white tracking-[-0.01em] leading-[1.08] uppercase drop-shadow-md">
+              WE BUILD SOCIAL <br />
+              STRATEGIES THAT <br />
+              <span className="italic text-slate-200">
+                GROW BUSINESSES.
+              </span>
+            </h1>
+          </div>
+
+          {/* High-Converting Action CTAs */}
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <button
+              type="button"
+              onClick={onOpenAudit}
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 text-xs font-bold text-[#0F172A] bg-white hover:bg-slate-100 rounded-none shadow-lg hover:shadow-xl transition-all group uppercase tracking-[0.16em]"
+            >
+              <span>Start A Project</span>
+              <ArrowRight className="w-3.5 h-3.5 text-[#0F172A] group-hover:translate-x-0.5 transition-transform stroke-[2.5]" />
+            </button>
+
+            <button
+              type="button"
+              onClick={scrollToNext}
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 text-xs font-bold text-white bg-white/10 hover:bg-white/20 border border-white/30 backdrop-blur-md rounded-none shadow-md transition-all group uppercase tracking-[0.16em]"
+            >
+              <span>Explore Strategy</span>
+              <ArrowDown className="w-3.5 h-3.5 text-white group-hover:translate-y-0.5 transition-transform stroke-[2]" />
+            </button>
+
+            <a
+              href={`https://wa.me/${AGENCY_INFO.phoneRaw}?text=${encodeURIComponent("Hi Poojaa, I saw your Career Compass video reel and would like to work with you on social growth.")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-4 py-3 text-xs font-bold text-white bg-black/60 hover:bg-black/80 border border-white/25 backdrop-blur-md rounded-none transition-all group uppercase tracking-[0.12em]"
+              title="Direct WhatsApp"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>WhatsApp</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-white transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 stroke-[1.75]" />
+            </a>
+          </div>
+
+          {/* Four Metric Pillars */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-3 border-t border-white/20 max-w-xl">
+            <div>
+              <div className="font-sans font-black text-xl lg:text-2xl text-white">2 Cr+</div>
+              <div className="text-[9.5px] font-mono text-slate-300 uppercase tracking-wider mt-0.5">Campaign Views</div>
+            </div>
+            <div>
+              <div className="font-sans font-black text-xl lg:text-2xl text-white">11M</div>
+              <div className="text-[9.5px] font-mono text-slate-300 uppercase tracking-wider mt-0.5">Peak Reel</div>
+            </div>
+            <div>
+              <div className="font-sans font-black text-xl lg:text-2xl text-white">46.5k</div>
+              <div className="text-[9.5px] font-mono text-slate-300 uppercase tracking-wider mt-0.5">Audience Built</div>
+            </div>
+            <div>
+              <div className="font-sans font-black text-xl lg:text-2xl text-white">6 Yrs</div>
+              <div className="text-[9.5px] font-mono text-slate-300 uppercase tracking-wider mt-0.5">Data Analytics</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Bar: Scroll Indicator */}
+        <div className="flex items-center justify-start pt-2 border-t border-white/10">
+          <button
+            type="button"
+            onClick={scrollToNext}
+            className="flex items-center gap-2 text-xs font-mono text-slate-300 hover:text-white transition-colors group cursor-pointer"
+          >
+            <span className="w-1.5 h-1.5 rounded-none bg-white animate-bounce" />
+            <span className="uppercase tracking-widest text-[10.5px]">Scroll To Explore</span>
+            <ArrowDown className="w-3 h-3 group-hover:translate-y-0.5 transition-transform" />
+          </button>
+        </div>
+
+      </div>
+    </section>
+  );
+}
