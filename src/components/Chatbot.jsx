@@ -284,7 +284,6 @@ function detectIntent(rawQuery) {
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [hasOpenedBefore, setHasOpenedBefore] = useState(false);
-  const [showPromptBanner, setShowPromptBanner] = useState(true);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [messages, setMessages] = useState([
@@ -308,19 +307,10 @@ export default function Chatbot() {
   useEffect(() => {
     if (isOpen) {
       scrollToBottom();
-      setShowPromptBanner(false);
     }
   }, [messages, isOpen]);
 
-  // Hide initial prompt banner after 8 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowPromptBanner(false);
-    }, 9000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleSend = (textToSend = input) => {
+    const handleSend = (textToSend = input) => {
     const query = textToSend.trim();
     if (!query) return;
 
@@ -396,43 +386,7 @@ export default function Chatbot() {
   return (
     <div className="fixed bottom-5 right-5 z-50 font-sans">
       
-      {/* Floating Prompt Bubble on Initial Visit */}
-      <AnimatePresence>
-        {!isOpen && showPromptBanner && (
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="absolute bottom-16 right-0 mb-2 w-72 p-3 bg-white border border-slate-300 shadow-xl rounded-none text-slate-800 text-xs flex items-start gap-2.5 cursor-pointer"
-            onClick={() => {
-              setIsOpen(true);
-              setHasOpenedBefore(true);
-            }}
-          >
-            <div className="w-6 h-6 rounded-none bg-[#0F172A] text-white flex items-center justify-center shrink-0">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            </div>
-            <div className="flex-1">
-              <p className="font-bold text-[#0F172A]">Have a question?</p>
-              <p className="text-[11px] text-slate-600 mt-0.5">
-                Ask our AI assistant about Poojaa's background, client work, or strategy packages!
-              </p>
-            </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowPromptBanner(false);
-              }}
-              className="text-slate-400 hover:text-slate-800"
-              aria-label="Dismiss banner"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Floating Launcher Button */}
+            {/* Floating Launcher Button */}
       {!isOpen && (
         <motion.button
           whileHover={{ scale: 1.05 }}
