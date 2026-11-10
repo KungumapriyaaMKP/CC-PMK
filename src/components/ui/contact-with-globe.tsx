@@ -742,7 +742,7 @@ export default function ContactWithGlobe({
             initial={{ opacity: 0, y: -12 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: smoothEase }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
             className="inline-flex items-center gap-2 px-3 py-1 bg-white border border-slate-300 rounded-none shadow-2xs"
           >
             <span className="w-1.5 h-1.5 bg-[#0F172A] rounded-none shrink-0" />
@@ -755,7 +755,7 @@ export default function ContactWithGlobe({
             initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.9, delay: 0.15, ease: smoothEase }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
             className="text-3xl md:text-5xl font-serif font-bold text-[#0F172A] tracking-[-0.01em] uppercase max-w-2xl"
           >
             {title}
@@ -766,7 +766,7 @@ export default function ContactWithGlobe({
               initial={{ opacity: 0, y: 14 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.9, delay: 0.3, ease: smoothEase }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
               className="text-base text-slate-600 max-w-xl leading-relaxed"
             >
               {description}
@@ -780,7 +780,7 @@ export default function ContactWithGlobe({
             initial={{ opacity: 0, y: 28 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 1.0, delay: 0.2, ease: smoothEase }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
             className="rounded-none border border-slate-200/90 bg-white p-7 sm:p-9 flex flex-col gap-5 shadow-xs"
           >
             <div>
@@ -880,7 +880,7 @@ export default function ContactWithGlobe({
             initial={{ opacity: 0, y: 28 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 1.0, delay: 0.35, ease: smoothEase }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
             className="flex flex-col h-full"
           >
             <div className="relative overflow-hidden flex-1 min-h-[420px] lg:min-h-[500px] rounded-2xl border border-slate-200/90 bg-slate-50/50 p-2 shadow-xs flex items-center justify-center">

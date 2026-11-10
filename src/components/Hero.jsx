@@ -182,7 +182,8 @@ export default function Hero({ onOpenAudit }) {
           autoPlay
           loop
           playsInline
-          preload="auto"
+          poster="/assets/hero-poster.jpg"
+          preload="metadata"
           className="w-full h-full object-cover object-[48%_center] sm:object-[52%_center] lg:object-[58%_center]"
         />
 

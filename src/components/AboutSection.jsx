@@ -66,7 +66,7 @@ export default function AboutSection() {
                   <img
                     src="/assets/poojaa-muthukumar.jpg"
                     alt="Poojaa Muthukumar: Founder and Social Media Growth Strategist"
-                    className="w-full h-full object-cover object-[center_16%]"
+                    className="w-full h-full object-cover object-[center_16%]" loading="lazy" decoding="async"
                   />
                   
                   {/* Top-Right Brand Logo Tag */}
@@ -75,7 +75,7 @@ export default function AboutSection() {
                       <img 
                         src="/assets/logo.jpg" 
                         alt="Career Compass" 
-                        className="w-full h-full object-contain"
+                        className="w-full h-full object-contain" loading="lazy" decoding="async"
                       />
                     </div>
                   </div>
