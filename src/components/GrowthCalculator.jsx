@@ -518,15 +518,15 @@ I would like to review the custom growth roadmap and strategy with you.`;
                 </div>
               </div>
 
-              {/* Slide Navigation Footer Controls */}
-              <div className="flex items-center justify-between pt-6 mt-6 border-t border-slate-200">
+              {/* Slide Navigation Footer Controls (Mobile Responsive) */}
+              <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-6 mt-6 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={prevStep}
                   disabled={currentStep === 0}
-                  className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold uppercase tracking-wider border rounded-none transition-all ${
+                  className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold uppercase tracking-wider border rounded-none transition-all ${
                     currentStep === 0
-                      ? 'opacity-30 cursor-not-allowed border-slate-200 text-slate-400'
+                      ? 'opacity-30 cursor-not-allowed border-slate-200 text-slate-400 hidden sm:inline-flex'
                       : 'border-slate-300 hover:border-[#0F172A] text-[#0F172A] bg-white hover:bg-slate-50'
                   }`}
                 >
@@ -534,12 +534,12 @@ I would like to review the custom growth roadmap and strategy with you.`;
                   <span>Previous</span>
                 </button>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
                   {currentStep < 3 ? (
                     <button
                       type="button"
                       onClick={nextStep}
-                      className="inline-flex items-center gap-2 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-[#0F172A] hover:bg-black rounded-none transition-all shadow-xs group"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-[#0F172A] hover:bg-black rounded-none transition-all shadow-xs group"
                     >
                       <span>Next Question</span>
                       <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
@@ -549,11 +549,11 @@ I would like to review the custom growth roadmap and strategy with you.`;
                       href={generateWhatsAppMessage()}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-[#0F172A] hover:bg-black rounded-none transition-all shadow-xs group"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white bg-[#0F172A] hover:bg-black rounded-none transition-all shadow-xs group text-center"
                     >
-                      <MessageSquare className="w-3.5 h-3.5" />
-                      <span>Send Roadmap to Poojaa</span>
-                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                      <MessageSquare className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <span className="whitespace-nowrap">Send Roadmap to Poojaa</span>
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform shrink-0" />
                     </a>
                   )}
                 </div>
