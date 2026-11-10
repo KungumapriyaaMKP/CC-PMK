@@ -245,27 +245,30 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                   }}
                   className="relative w-full h-full rounded-none shadow-xl overflow-hidden group border border-slate-300 bg-slate-950 cursor-pointer hover:border-white transition-all duration-300"
                 >
-                  {/* Full resolution verified reel cover image */}
+                  {/* Underneath fallback image while reel iframe initializes */}
                   {item.photo?.url && (
                     <img
                       src={item.photo.url}
                       alt={item.photo.text || item.common}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="absolute inset-0 w-full h-full object-cover opacity-60"
                       style={{ objectPosition: item.photo.pos || 'center' }}
                       loading="lazy"
-                      decoding="async"
                     />
                   )}
 
-                  {/* Subtle Dark Vignette & Centered Play Indicator */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30 pointer-events-none" />
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-12 h-12 rounded-full bg-white/25 backdrop-blur-md border border-white/50 flex items-center justify-center text-white shadow-xl group-hover:scale-110 group-hover:bg-[#0F172A] transition-all duration-300">
-                      <svg className="w-5 h-5 fill-current ml-0.5 text-white" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
+                  {/* Actual Real Instagram Reel Embed */}
+                  {item.reelId && (
+                    <div className="absolute inset-0 w-full h-full overflow-hidden bg-black/90 pointer-events-none">
+                      <iframe
+                        src={`https://www.instagram.com/reel/${item.reelId}/embed/`}
+                        className="w-full h-full border-0 pointer-events-none scale-100"
+                        allowFullScreen
+                        scrolling="no"
+                        loading="lazy"
+                        title={item.common}
+                      />
                     </div>
-                  </div>
+                  )}
 
                   {/* Bottom Gradient Overlay & Meta Info */}
                   <div className="absolute bottom-0 left-0 w-full p-3 sm:p-4 bg-gradient-to-t from-slate-950 via-slate-950/85 to-transparent text-white space-y-1 z-20 pointer-events-none">
