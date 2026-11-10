@@ -10,8 +10,7 @@ import {
   User, 
   PhoneCall, 
   CheckCircle2, 
-  RefreshCw,
-  Compass
+  RefreshCw
 } from 'lucide-react';
 import { AGENCY_INFO, METRICS, SERVICES, CASE_STUDIES, FAQS } from '../data/content';
 
@@ -34,10 +33,10 @@ const KNOWLEDGE_BASE = [
     ]
   },
   {
-    keywords: ["11m", "views", "results", "metrics", "case study", "portfolio", "clients", "proof", "banu", "resilio"],
+    keywords: ["11m", "views", "results", "metrics", "client work", "portfolio", "clients", "proof", "banu", "resilio", "case study", "works"],
     response: `Our documented client milestones include:\n\n- **11 Million Views**: Single viral reel peak for a Dubai Real Estate investor starting from only 6,500 followers.\n- **2 Crore+ Views**: Generated in a single 30-day client campaign.\n- **46,500+ Patient Community**: Built organically for Resilio Pain Clinic through 30 ethical medical videos.\n- **4,500+ Followers in 7 Days**: Recorded within one week of a strategic campaign rollout.`,
     quickLinks: [
-      { label: "View Case Studies", anchor: "#case-studies" },
+      { label: "View Client Work", anchor: "#case-studies" },
       { label: "Chat on WhatsApp", url: `https://wa.me/${AGENCY_INFO.phoneRaw}?text=${encodeURIComponent("Hi Poojaa, I saw your 11M views milestone and want to discuss similar growth for my brand.")}`, external: true }
     ]
   },
@@ -83,7 +82,7 @@ export default function Chatbot() {
     {
       id: "welcome",
       sender: "bot",
-      text: `Hello! I'm the **Career Compass AI Assistant**. Ask me anything about Poojaa Muthukumar's background, client case studies, services, or how we engineer viral social growth.`,
+      text: `Hello! I'm the **Career Compass AI Assistant**. Ask me anything about Poojaa Muthukumar's background, client work, services, or how we engineer viral social growth.`,
       quickLinks: [
         { label: "What Services Do You Offer?", question: "What services do you offer?" },
         { label: "How Did You Hit 11M Views?", question: "How did you hit 11M views?" }
@@ -151,7 +150,7 @@ export default function Chatbot() {
 
       const botResponse = match 
         ? match.response 
-        : `Thank you for asking! For custom requirements or detailed strategy inquiries, Poojaa is directly available for a 1-on-1 diagnostic discussion. Would you like to connect directly on WhatsApp or review our case studies?`;
+        : `Thank you for asking! For custom requirements or detailed strategy inquiries, Poojaa is directly available for a 1-on-1 diagnostic discussion. Would you like to connect directly on WhatsApp or review our client work?`;
 
       const botLinks = match?.quickLinks || [
         { label: "Chat with Poojaa Directly", url: `https://wa.me/${AGENCY_INFO.phoneRaw}?text=${encodeURIComponent(`Hi Poojaa, I asked your AI assistant: "${query}" and would love to speak directly.`)}`, external: true },
@@ -207,7 +206,7 @@ export default function Chatbot() {
             <div className="flex-1">
               <p className="font-bold text-[#0F172A]">Have a question?</p>
               <p className="text-[11px] text-slate-600 mt-0.5">
-                Ask our AI assistant about Poojaa's background, case studies, or strategy packages!
+                Ask our AI assistant about Poojaa's background, client work, or strategy packages!
               </p>
             </div>
             <button
@@ -254,20 +253,14 @@ export default function Chatbot() {
           >
             {/* Header */}
             <div className="p-4 bg-[#0F172A] text-white flex items-center justify-between border-b border-slate-800 shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="relative w-9 h-9 rounded-none bg-white/10 border border-white/20 flex items-center justify-center">
-                  <Compass className="w-5 h-5 text-white" />
-                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border border-[#0F172A]" />
-                </div>
-                <div>
-                  <h3 className="font-sans font-bold text-sm tracking-tight leading-snug">
-                    Poojaa & Career Compass AI
-                  </h3>
-                  <p className="text-[10px] font-mono text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                    <span>Online | Growth Assistant</span>
-                  </p>
-                </div>
+              <div>
+                <h3 className="font-sans font-bold text-sm tracking-tight leading-snug">
+                  Poojaa & Career Compass AI
+                </h3>
+                <p className="text-[10px] font-mono text-slate-300 uppercase tracking-wider flex items-center gap-1.5 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span>Online | Growth Assistant</span>
+                </p>
               </div>
 
               <div className="flex items-center gap-1">
@@ -382,7 +375,7 @@ export default function Chatbot() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask about Poojaa, case studies, services..."
+                placeholder="Ask about Poojaa, client work, services..."
                 className="flex-1 px-3 py-2 text-xs bg-slate-50 border border-slate-300 rounded-none focus:outline-none focus:border-[#0F172A] focus:bg-white text-slate-900 placeholder:text-slate-400 font-sans"
               />
               <button

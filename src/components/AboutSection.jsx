@@ -16,14 +16,14 @@ import {
   IconSpotify
 } from './ui/floating-icons-hero-section';
 
-// Platform icons positioning exactly matching the reference showcase in image 3
+// Platform icons positioning exactly matching the reference showcase in image 3 with responsive mobile offsets
 const ABOUT_FLOATING_ICONS = [
-  { id: 1, icon: IconInstagram, className: '-top-5 -left-4 sm:-top-6 sm:-left-6', label: 'Instagram & Reels Growth' },
-  { id: 2, icon: IconYouTube, className: '-top-5 -right-4 sm:-top-6 sm:-right-6', label: 'YouTube Video Strategy' },
-  { id: 3, icon: IconX, className: 'top-[110px] -left-6 sm:-left-8', label: 'Brand Narrative & Reach' },
-  { id: 4, icon: IconFigma, className: 'top-[140px] -right-6 sm:-right-8', label: 'Creative Content Direction' },
-  { id: 5, icon: IconLinkedIn, className: 'top-[220px] -left-6 sm:-left-8', label: 'LinkedIn Personal Branding' },
-  { id: 6, icon: IconSpotify, className: 'top-[260px] -right-6 sm:-right-8', label: 'Podcasts & Multi-Platform Audio' },
+  { id: 1, icon: IconInstagram, className: '-top-4 -left-2 sm:-top-6 sm:-left-6', label: 'Instagram & Reels Growth' },
+  { id: 2, icon: IconYouTube, className: '-top-4 -right-2 sm:-top-6 sm:-right-6', label: 'YouTube Video Strategy' },
+  { id: 3, icon: IconX, className: 'top-[110px] -left-3 sm:-left-8', label: 'Brand Narrative & Reach' },
+  { id: 4, icon: IconFigma, className: 'top-[140px] -right-3 sm:-right-8', label: 'Creative Content Direction' },
+  { id: 5, icon: IconLinkedIn, className: 'top-[220px] -left-3 sm:-left-8', label: 'LinkedIn Personal Branding' },
+  { id: 6, icon: IconSpotify, className: 'top-[260px] -right-3 sm:-right-8', label: 'Podcasts & Multi-Platform Audio' },
 ];
 
 export default function AboutSection() {

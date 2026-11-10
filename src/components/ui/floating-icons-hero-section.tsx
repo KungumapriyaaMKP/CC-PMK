@@ -41,33 +41,42 @@ export const FloatingRepellingIcon = ({
   const springY = useSpring(y, { stiffness: 300, damping: 20 });
 
   React.useEffect(() => {
-    const handleMouseMove = () => {
-      if (ref.current) {
-        const rect = ref.current.getBoundingClientRect();
-        const distance = Math.sqrt(
-          Math.pow(mouseX.current - (rect.left + rect.width / 2), 2) +
-            Math.pow(mouseY.current - (rect.top + rect.height / 2), 2)
-        );
+    // Disable heavy mouse tracking on touch/mobile devices to eliminate latency
+    if (typeof window === 'undefined' || !window.matchMedia('(hover: hover)').matches) {
+      return;
+    }
 
-        // If the cursor is close enough, repel the icon
-        if (distance < 150) {
-          const angle = Math.atan2(
-            mouseY.current - (rect.top + rect.height / 2),
-            mouseX.current - (rect.left + rect.width / 2)
+    let ticking = false;
+    const handleMouseMove = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        if (ref.current) {
+          const rect = ref.current.getBoundingClientRect();
+          const distance = Math.sqrt(
+            Math.pow(mouseX.current - (rect.left + rect.width / 2), 2) +
+              Math.pow(mouseY.current - (rect.top + rect.height / 2), 2)
           );
-          // The closer the cursor, the stronger the repulsion
-          const force = (1 - distance / 150) * 50;
-          x.set(-Math.cos(angle) * force);
-          y.set(-Math.sin(angle) * force);
-        } else {
-          // Return to original position when cursor is away
-          x.set(0);
-          y.set(0);
+
+          // If the cursor is close enough, repel the icon
+          if (distance < 150) {
+            const angle = Math.atan2(
+              mouseY.current - (rect.top + rect.height / 2),
+              mouseX.current - (rect.left + rect.width / 2)
+            );
+            const force = (1 - distance / 150) * 45;
+            x.set(-Math.cos(angle) * force);
+            y.set(-Math.sin(angle) * force);
+          } else {
+            x.set(0);
+            y.set(0);
+          }
         }
-      }
+      });
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [x, y, mouseX, mouseY]);
 

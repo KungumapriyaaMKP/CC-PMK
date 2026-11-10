@@ -25,11 +25,13 @@ const CrowdCanvas = ({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
     const config = {
       src,
-      rows,
-      cols,
+      rows: isMobile ? 8 : rows,
+      cols: isMobile ? 4 : cols,
     };
+    const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
 
     // UTILS
     const randomRange = (min: number, max: number) =>
@@ -237,7 +239,7 @@ const CrowdCanvas = ({
       if (!canvas) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.save();
-      ctx.scale(devicePixelRatio, devicePixelRatio);
+      ctx.scale(dpr, dpr);
 
       crowd.forEach((peep) => {
         peep.render(ctx);
@@ -246,12 +248,26 @@ const CrowdCanvas = ({
       ctx.restore();
     };
 
+    let isTickerActive = false;
+    const startTicker = () => {
+      if (!isTickerActive) {
+        gsap.ticker.add(render);
+        isTickerActive = true;
+      }
+    };
+    const stopTicker = () => {
+      if (isTickerActive) {
+        gsap.ticker.remove(render);
+        isTickerActive = false;
+      }
+    };
+
     const resize = () => {
       if (!canvas) return;
       stage.width = canvas.clientWidth;
       stage.height = canvas.clientHeight;
-      canvas.width = stage.width * devicePixelRatio;
-      canvas.height = stage.height * devicePixelRatio;
+      canvas.width = stage.width * dpr;
+      canvas.height = stage.height * dpr;
 
       crowd.forEach((peep) => {
         if (peep.walk) peep.walk.kill();
@@ -264,11 +280,24 @@ const CrowdCanvas = ({
       initCrowd();
     };
 
+    let isLoaded = false;
     const init = () => {
       createPeeps();
       resize();
-      gsap.ticker.add(render);
+      isLoaded = true;
+      startTicker();
     };
+
+    // Pause rendering when off-screen to eliminate CPU/GPU latency
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        if (isLoaded) startTicker();
+      } else {
+        stopTicker();
+      }
+    }, { threshold: 0.05 });
+
+    observer.observe(canvas);
 
     img.onload = init;
     img.onerror = () => {
@@ -279,11 +308,12 @@ const CrowdCanvas = ({
     img.src = config.src;
 
     const handleResize = () => resize();
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize, { passive: true });
 
     return () => {
       window.removeEventListener("resize", handleResize);
-      gsap.ticker.remove(render);
+      observer.disconnect();
+      stopTicker();
       crowd.forEach((peep) => {
         if (peep.walk) peep.walk.kill();
       });

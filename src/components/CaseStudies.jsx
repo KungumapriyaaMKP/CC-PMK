@@ -47,7 +47,7 @@ const CLIENT_PORTFOLIO_ITEMS = [
     common: "Invest With Banu",
     binomial: "Dubai Real Estate: Demystified offshore property investment with 2 Crore+ views across 30 days.",
     badge: "2 Crore+ Views",
-    statusTag: "Case Study 01",
+    statusTag: "Client Work 01",
     category: "Real Estate",
     reelId: "Dd6dUTWTJ-V",
     reelUrl: "https://www.instagram.com/reel/Dd6dUTWTJ-V/?xtok=MXhha3Z4dGxheHlteQ==",
@@ -63,7 +63,7 @@ const CLIENT_PORTFOLIO_ITEMS = [
     common: "Resilio The Pain Clinic",
     binomial: "Healthcare & Medicine: Built 46,500+ patient community with 7M views on clinical education.",
     badge: "46.5k Community",
-    statusTag: "Case Study 02",
+    statusTag: "Client Work 02",
     category: "Healthcare",
     reelId: "DdMAXLhyh2z",
     reelUrl: "https://www.instagram.com/reel/DdMAXLhyh2z/?dlrf=MTVtYXY2NHh3NGFhMg==",
@@ -79,7 +79,7 @@ const CLIENT_PORTFOLIO_ITEMS = [
     common: "Eighteen Modesty",
     binomial: "Fashion & Lifestyle: Modern modest wear brand storytelling and aesthetic product positioning.",
     badge: "Modest Fashion",
-    statusTag: "Case Study 03",
+    statusTag: "Client Work 03",
     category: "Fashion & Lifestyle",
     reelId: "DdJdnOqyC7w",
     reelUrl: "https://www.instagram.com/reel/DdJdnOqyC7w/?dlrf=eGNuZW51ZXJrZzc1",
@@ -95,7 +95,7 @@ const CLIENT_PORTFOLIO_ITEMS = [
     common: "Space By KV",
     binomial: "Interior & Architecture: Architectural walkthroughs driving qualified high-ticket interior inquiries.",
     badge: "High-Ticket Inbound",
-    statusTag: "Case Study 04",
+    statusTag: "Client Work 04",
     category: "Interior Design",
     reelId: "DdluK97z2PV",
     reelUrl: "https://www.instagram.com/reel/DdluK97z2PV/?rpxt=MTF5bWIyMmg3eTQ5bg==",
@@ -240,7 +240,7 @@ export default function CaseStudies() {
 
           <div className="inline-flex items-center gap-2 pt-2 text-xs font-medium text-slate-500 font-sans">
             <MoveHorizontal className="w-3.5 h-3.5 text-slate-700 animate-pulse" />
-            <span>Drag or scroll to rotate client portfolio | Click any card for in-depth case study</span>
+            <span>Drag or scroll to rotate client portfolio | Click any card to explore their work</span>
           </div>
         </div>
 
@@ -248,8 +248,8 @@ export default function CaseStudies() {
         <div className="w-full h-[450px] sm:h-[500px] relative overflow-hidden my-4">
           <CircularGallery 
             items={CLIENT_PORTFOLIO_ITEMS} 
-            radius={470} 
-            autoRotateSpeed={0.03} 
+            radius={320} 
+            autoRotateSpeed={0.12} 
             onItemClick={handleItemClick}
           />
         </div>

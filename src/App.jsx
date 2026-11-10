@@ -73,4 +73,8 @@ export default function App() {
       {/* Footer */}
       <Footer />
 
-      {/* Floatin
+      {/* Floating Interactive Chatbot for Poojaa & Career Compass */}
+      <Chatbot />
+    </div>
+  );
+}

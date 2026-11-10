@@ -34,9 +34,13 @@ export interface CircularGalleryProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
-  ({ items, className, radius = 520, autoRotateSpeed = 0.04, onItemClick, ...props }, ref) => {
+  ({ items, className, radius = 320, autoRotateSpeed = 0.12, onItemClick, ...props }, ref) => {
     const [rotation, setRotation] = useState(0);
     const [isInteracting, setIsInteracting] = useState(false);
+    const [isInView, setIsInView] = useState(false);
+    const [effectiveRadius, setEffectiveRadius] = useState(radius);
+
+    const localRef = useRef<HTMLDivElement>(null);
     const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const animationFrameRef = useRef<number | null>(null);
     const isDraggingRef = useRef(false);
@@ -44,8 +48,48 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
     const startXRef = useRef(0);
     const startRotationRef = useRef(0);
 
-    // Effect to handle scroll-based rotation
+    // Responsive radius adjustment: reduced horizontal spacing between cards
     useEffect(() => {
+      const updateDimensions = () => {
+        if (typeof window === 'undefined') return;
+        const w = window.innerWidth;
+        if (w < 640) {
+          // Mobile: tight, compact circle with minimal horizontal gaps
+          setEffectiveRadius(Math.min(210, w * 0.52));
+        } else if (w < 1024) {
+          // Tablet
+          setEffectiveRadius(Math.min(270, w * 0.38));
+        } else {
+          // Desktop: compact radius bringing cards closer horizontally
+          setEffectiveRadius(radius);
+        }
+      };
+
+      updateDimensions();
+      window.addEventListener('resize', updateDimensions, { passive: true });
+      return () => window.removeEventListener('resize', updateDimensions);
+    }, [radius]);
+
+    // IntersectionObserver to pause auto-rotation when off-screen (eliminates idle latency)
+    useEffect(() => {
+      const el = localRef.current;
+      if (!el) return;
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          setIsInView(entry.isIntersecting);
+        },
+        { threshold: 0.05 }
+      );
+
+      observer.observe(el);
+      return () => observer.disconnect();
+    }, []);
+
+    // Effect to handle scroll-based rotation (debounced/throttled)
+    useEffect(() => {
+      if (!isInView) return;
+
       const handleScroll = () => {
         setIsInteracting(true);
         if (scrollTimeoutRef.current) {
@@ -69,10 +113,18 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
           clearTimeout(scrollTimeoutRef.current);
         }
       };
-    }, []);
+    }, [isInView]);
 
-    // Effect for auto-rotation when not interacting
+    // Effect for auto-rotation: Only active when visible in viewport
     useEffect(() => {
+      if (!isInView) {
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+          animationFrameRef.current = null;
+        }
+        return;
+      }
+
       const autoRotate = () => {
         if (!isInteracting && !isDraggingRef.current) {
           setRotation((prev) => prev + autoRotateSpeed);
@@ -87,7 +139,7 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
           cancelAnimationFrame(animationFrameRef.current);
         }
       };
-    }, [isInteracting, autoRotateSpeed]);
+    }, [isInView, isInteracting, autoRotateSpeed]);
 
     // Touch and mouse drag interaction
     const handleMouseDown = (e: React.MouseEvent) => {
@@ -139,11 +191,15 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
     
     return (
       <div
-        ref={ref}
+        ref={(node) => {
+          localRef.current = node;
+          if (typeof ref === 'function') ref(node);
+          else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+        }}
         role="region"
         aria-label="Circular 3D Gallery"
-        className={cn("relative w-full h-full flex items-center justify-center select-none cursor-grab active:cursor-grabbing", className)}
-        style={{ perspective: '2000px' }}
+        className={cn("relative w-full h-full flex items-center justify-center select-none cursor-grab active:cursor-grabbing touch-pan-y", className)}
+        style={{ perspective: '1600px' }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -172,13 +228,13 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                 key={(item.reelId || item.photo?.url || "item") + i} 
                 role="group"
                 aria-label={item.common}
-                className="absolute w-[220px] sm:w-[260px] h-[340px] sm:h-[400px] -ml-[110px] sm:-ml-[130px] -mt-[170px] sm:-mt-[200px]"
+                className="absolute w-[185px] sm:w-[230px] md:w-[260px] h-[310px] sm:h-[360px] md:h-[400px] -ml-[92px] sm:-ml-[115px] md:-ml-[130px] -mt-[155px] sm:-mt-[180px] md:-mt-[200px]"
                 style={{
-                  transform: `rotateY(${itemAngle}deg) translateZ(${radius}px)`,
+                  transform: `rotateY(${itemAngle}deg) translateZ(${effectiveRadius}px)`,
                   left: '50%',
                   top: '50%',
                   opacity: opacity,
-                  transition: 'opacity 0.3s linear'
+                  transition: 'opacity 0.25s linear'
                 }}
               >
                 <div 
@@ -196,12 +252,13 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                       alt={item.photo.text || item.common}
                       className="absolute inset-0 w-full h-full object-cover opacity-60"
                       style={{ objectPosition: item.photo.pos || 'center' }}
+                      loading="lazy"
                     />
                   )}
 
                   {/* Instagram Reel Embed iframe */}
                   {item.reelId && (
-                    <div className="absolute inset-0 w-full h-full overflow-hidden bg-black/90">
+                    <div className="absolute inset-0 w-full h-full overflow-hidden bg-black/90 pointer-events-none">
                       <iframe
                         src={`https://www.instagram.com/reel/${item.reelId}/embed/`}
                         className="w-full h-full border-0 pointer-events-none scale-100"
@@ -213,17 +270,16 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                     </div>
                   )}
 
-
                   {/* Bottom Gradient Overlay & Meta Info */}
-                  <div className="absolute bottom-0 left-0 w-full p-3.5 sm:p-4 bg-gradient-to-t from-slate-950 via-slate-950/85 to-transparent text-white space-y-1 z-20 pointer-events-none">
-                    <h3 className="text-sm sm:text-[15px] font-sans font-bold text-white leading-snug tracking-tight">
+                  <div className="absolute bottom-0 left-0 w-full p-3 sm:p-4 bg-gradient-to-t from-slate-950 via-slate-950/85 to-transparent text-white space-y-1 z-20 pointer-events-none">
+                    <h3 className="text-xs sm:text-[15px] font-sans font-bold text-white leading-snug tracking-tight">
                       {item.common}
                     </h3>
-                    <p className="text-[11px] text-slate-300 font-sans line-clamp-2 leading-relaxed">
+                    <p className="text-[10px] sm:text-[11px] text-slate-300 font-sans line-clamp-2 leading-relaxed">
                       {item.binomial}
                     </p>
-                    <div className="pt-2 flex items-center justify-between border-t border-white/15 text-[9.5px] text-slate-300 font-sans">
-                      <span className="font-semibold text-slate-200">{item.photo?.by || "Career Compass"}</span>
+                    <div className="pt-1.5 sm:pt-2 flex items-center justify-between border-t border-white/15 text-[9px] sm:text-[9.5px] text-slate-300 font-sans">
+                      <span className="font-semibold text-slate-200 truncate max-w-[100px]">{item.photo?.by || "Career Compass"}</span>
                       <span className="text-emerald-400 font-bold uppercase tracking-wider whitespace-nowrap flex items-center gap-1">
                         Click Here ↗
                       </span>

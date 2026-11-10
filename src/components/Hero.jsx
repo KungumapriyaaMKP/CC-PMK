@@ -143,7 +143,7 @@ export default function Hero({ onOpenAudit }) {
   return (
     <section 
       ref={heroRef}
-      className="relative w-full h-screen min-h-[640px] flex items-center overflow-hidden bg-black text-white"
+      className="relative w-full h-[100dvh] min-h-[580px] sm:min-h-[640px] flex items-center overflow-hidden bg-black text-white"
     >
       {/* 1. Full Screen Background Video (Clean, Bright, Natural Lighting, Audio Enabled at Top, Auto-Mutes on Scroll) */}
       <div className="absolute inset-0 w-full h-full overflow-hidden">
@@ -158,15 +158,15 @@ export default function Hero({ onOpenAudit }) {
         />
 
         {/* Light subtle scrim strictly behind text area for crisp readability without darkening the video */}
-        <div className="absolute inset-y-0 left-0 w-full md:w-1/2 bg-gradient-to-r from-black/40 to-transparent pointer-events-none" />
+        <div className="absolute inset-y-0 left-0 w-full md:w-1/2 bg-gradient-to-r from-black/45 via-black/25 to-transparent pointer-events-none" />
       </div>
 
       {/* Floating Audio Control Pill */}
-      <div className="absolute top-24 right-4 sm:right-8 z-30">
+      <div className="absolute top-20 sm:top-24 right-3 sm:right-8 z-30">
         <button
           type="button"
           onClick={toggleSound}
-          className="inline-flex items-center gap-2 px-3.5 py-2 text-[10.5px] font-mono font-bold uppercase tracking-wider text-white bg-black/60 hover:bg-black/80 border border-white/30 backdrop-blur-md rounded-none shadow-lg transition-all"
+          className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-[9.5px] sm:text-[10.5px] font-mono font-bold uppercase tracking-wider text-white bg-black/60 hover:bg-black/80 border border-white/30 backdrop-blur-md rounded-none shadow-lg transition-all"
           title={isMuted ? "Click to Unmute Audio" : "Sound Active - Auto-mutes when scrolling"}
         >
           {isMuted ? (
@@ -184,12 +184,12 @@ export default function Hero({ onOpenAudit }) {
       </div>
 
       {/* 2. Front Landing Page Content Overlay (Brought Down to Lower-Left to Keep Face Fully Open) */}
-      <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-6 sm:pb-8 flex flex-col justify-end h-full">
+      <div className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-6 sm:pb-8 flex flex-col justify-end h-full">
         
         {/* Main Left-Aligned Headline & Actions (Positioned Lower-Left) */}
-        <div className="max-w-xl lg:max-w-2xl space-y-5 text-left pb-3">
-          <div className="space-y-2">
-            <h1 className="font-serif font-bold text-3xl sm:text-4xl md:text-5xl lg:text-[52px] text-white tracking-[-0.01em] leading-[1.08] uppercase drop-shadow-md">
+        <div className="max-w-xl lg:max-w-2xl space-y-4 sm:space-y-5 text-left pb-2 sm:pb-3">
+          <div className="space-y-1 sm:space-y-2">
+            <h1 className="font-serif font-bold text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-[52px] text-white tracking-[-0.01em] leading-[1.1] uppercase drop-shadow-md">
               WE BUILD SOCIAL <br />
               STRATEGIES THAT <br />
               <span className="italic text-slate-200">
@@ -199,11 +199,11 @@ export default function Hero({ onOpenAudit }) {
           </div>
 
           {/* High-Converting Action CTAs */}
-          <div className="flex flex-wrap items-center gap-3 pt-1">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 pt-1">
             <button
               type="button"
               onClick={onOpenAudit}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 text-xs font-bold text-[#0F172A] bg-white hover:bg-slate-100 rounded-none shadow-lg hover:shadow-xl transition-all group uppercase tracking-[0.16em]"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 sm:px-6 sm:py-3 text-[11px] sm:text-xs font-bold text-[#0F172A] bg-white hover:bg-slate-100 rounded-none shadow-lg hover:shadow-xl transition-all group uppercase tracking-[0.14em] sm:tracking-[0.16em]"
             >
               <span>Start A Project</span>
               <ArrowRight className="w-3.5 h-3.5 text-[#0F172A] group-hover:translate-x-0.5 transition-transform stroke-[2.5]" />
@@ -212,7 +212,7 @@ export default function Hero({ onOpenAudit }) {
             <button
               type="button"
               onClick={scrollToNext}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 text-xs font-bold text-white bg-white/10 hover:bg-white/20 border border-white/30 backdrop-blur-md rounded-none shadow-md transition-all group uppercase tracking-[0.16em]"
+              className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 sm:px-5 sm:py-3 text-[11px] sm:text-xs font-bold text-white bg-white/10 hover:bg-white/20 border border-white/30 backdrop-blur-md rounded-none shadow-md transition-all group uppercase tracking-[0.14em] sm:tracking-[0.16em]"
             >
               <span>Explore Strategy</span>
               <ArrowDown className="w-3.5 h-3.5 text-white group-hover:translate-y-0.5 transition-transform stroke-[2]" />
@@ -222,7 +222,7 @@ export default function Hero({ onOpenAudit }) {
               href={`https://wa.me/${AGENCY_INFO.phoneRaw}?text=${encodeURIComponent("Hi Poojaa, I saw your Career Compass video reel and would like to work with you on social growth.")}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-4 py-3 text-xs font-bold text-white bg-black/60 hover:bg-black/80 border border-white/25 backdrop-blur-md rounded-none transition-all group uppercase tracking-[0.12em]"
+              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 py-2.5 sm:px-4 sm:py-3 text-[11px] sm:text-xs font-bold text-white bg-black/60 hover:bg-black/80 border border-white/25 backdrop-blur-md rounded-none transition-all group uppercase tracking-[0.12em]"
               title="Direct WhatsApp"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -232,22 +232,22 @@ export default function Hero({ onOpenAudit }) {
           </div>
 
           {/* Four Metric Pillars */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-3 border-t border-white/20 max-w-xl">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 pt-3 border-t border-white/20 max-w-xl">
             <div>
-              <div className="font-sans font-black text-xl lg:text-2xl text-white">2 Cr+</div>
-              <div className="text-[9.5px] font-mono text-slate-300 uppercase tracking-wider mt-0.5">Campaign Views</div>
+              <div className="font-sans font-black text-lg sm:text-xl lg:text-2xl text-white">2 Cr+</div>
+              <div className="text-[9px] sm:text-[9.5px] font-mono text-slate-300 uppercase tracking-wider mt-0.5">Campaign Views</div>
             </div>
             <div>
-              <div className="font-sans font-black text-xl lg:text-2xl text-white">11M</div>
-              <div className="text-[9.5px] font-mono text-slate-300 uppercase tracking-wider mt-0.5">Peak Reel</div>
+              <div className="font-sans font-black text-lg sm:text-xl lg:text-2xl text-white">11M</div>
+              <div className="text-[9px] sm:text-[9.5px] font-mono text-slate-300 uppercase tracking-wider mt-0.5">Peak Reel</div>
             </div>
             <div>
-              <div className="font-sans font-black text-xl lg:text-2xl text-white">46.5k</div>
-              <div className="text-[9.5px] font-mono text-slate-300 uppercase tracking-wider mt-0.5">Audience Built</div>
+              <div className="font-sans font-black text-lg sm:text-xl lg:text-2xl text-white">46.5k</div>
+              <div className="text-[9px] sm:text-[9.5px] font-mono text-slate-300 uppercase tracking-wider mt-0.5">Audience Built</div>
             </div>
             <div>
-              <div className="font-sans font-black text-xl lg:text-2xl text-white">6 Yrs</div>
-              <div className="text-[9.5px] font-mono text-slate-300 uppercase tracking-wider mt-0.5">Data Analytics</div>
+              <div className="font-sans font-black text-lg sm:text-xl lg:text-2xl text-white">6 Yrs</div>
+              <div className="text-[9px] sm:text-[9.5px] font-mono text-slate-300 uppercase tracking-wider mt-0.5">Data Analytics</div>
             </div>
           </div>
         </div>
